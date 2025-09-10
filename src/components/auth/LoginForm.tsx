@@ -51,38 +51,10 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
     try {
       setError('');
       
-      // Mock authentication for development
-      if (data.email === 'admin@test.com' && data.password === 'password') {
-        // Simulate successful login without actual API call
-        const mockUser = {
-          id: 1,
-          username: 'admin',
-          email: 'admin@test.com',
-          firstName: 'Admin',
-          lastName: 'User'
-        };
-        
-        const mockToken = 'mock-jwt-token';
-        localStorage.setItem('token', mockToken);
-        
-        // This would normally call the actual login function
-        // await login(data.email, data.password);
-        window.location.reload(); // Force reload to trigger auth state change
-        return;
-      }
+      // Use the actual auth service which handles the mock logic
+      await login(data.email, data.password);
       
-      // For development, accept any email/password combination
-      const mockUser = {
-        id: Math.floor(Math.random() * 1000),
-        username: data.email.split('@')[0],
-        email: data.email,
-        firstName: 'Usuario',
-        lastName: 'Demo'
-      };
-      
-      const mockToken = 'mock-jwt-token-' + Date.now();
-      localStorage.setItem('token', mockToken);
-      window.location.reload();
+      // No need for window.location.reload() - the AuthContext will handle the state
       
     } catch (err: any) {
       setError(err.message || 'Error al iniciar sesión');
@@ -191,11 +163,13 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
 
         <Box sx={{ mt: 3, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
           <Typography variant="body2" color="text.secondary" align="center" gutterBottom>
-            <strong>Demo:</strong>
+            <strong>Cuentas Demo:</strong>
+          </Typography>
+          <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 1 }}>
+            <strong>Admin:</strong> admin@haversack.com / admin123
           </Typography>
           <Typography variant="body2" color="text.secondary" align="center">
-            Email: admin@test.com<br />
-            Contraseña: password
+            <strong>Usuario:</strong> cualquier email válido / cualquier contraseña
           </Typography>
         </Box>
       </CardContent>

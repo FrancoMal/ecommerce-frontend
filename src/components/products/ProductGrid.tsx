@@ -18,9 +18,10 @@ import ProductCard from './ProductCard';
 interface ProductGridProps {
   categoryId?: number | null;
   searchQuery?: string;
+  filters?: Partial<ProductFilters>;
 }
 
-export default function ProductGrid({ categoryId, searchQuery }: ProductGridProps) {
+export default function ProductGrid({ categoryId, searchQuery, filters }: ProductGridProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -29,7 +30,7 @@ export default function ProductGrid({ categoryId, searchQuery }: ProductGridProp
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'createdAt'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
-  const fetchProducts = async (filters?: ProductFilters) => {
+  const fetchProducts = async (additionalFilters?: ProductFilters) => {
     try {
       setLoading(true);
       setError('');
@@ -41,7 +42,8 @@ export default function ProductGrid({ categoryId, searchQuery }: ProductGridProp
         sortOrder,
         page: currentPage,
         limit: 12,
-        ...filters,
+        ...filters, // Include filters from props
+        ...additionalFilters,
       });
       
       setProducts(response.data);
@@ -56,11 +58,11 @@ export default function ProductGrid({ categoryId, searchQuery }: ProductGridProp
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [categoryId, searchQuery]);
+  }, [categoryId, searchQuery, filters]);
 
   useEffect(() => {
     fetchProducts();
-  }, [categoryId, searchQuery, currentPage, sortBy, sortOrder]);
+  }, [categoryId, searchQuery, filters, currentPage, sortBy, sortOrder]);
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);

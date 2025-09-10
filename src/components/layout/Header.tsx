@@ -22,10 +22,15 @@ import {
   Logout,
   Person,
   Add,
+  DarkMode,
+  LightMode,
+  Favorite,
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import { useFavorites } from '../../context/FavoritesContext';
+import { useTheme as useHaversackTheme } from '../../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 
 const SearchContainer = styled('div')(({ theme }) => ({
@@ -88,6 +93,8 @@ interface HeaderProps {
 export default function Header({ onCartOpen, onSearchChange }: HeaderProps) {
   const { user, logout } = useAuth();
   const { cart } = useCart();
+  const { favorites } = useFavorites();
+  const { mode, toggleTheme } = useHaversackTheme();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -157,15 +164,38 @@ export default function Header({ onCartOpen, onSearchChange }: HeaderProps) {
         <Box sx={{ flexGrow: 1 }} />
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {user && (
+          {/* Theme Toggle */}
+          <IconButton
+            onClick={toggleTheme}
+            color="primary"
+            sx={{ mr: 1 }}
+            title={mode === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}
+          >
+            {mode === 'light' ? <DarkMode /> : <LightMode />}
+          </IconButton>
+
+          {user && user.role === 'admin' && (
             <Button
               color="primary"
               startIcon={<Add />}
               onClick={() => navigate('/manage-products')}
               sx={{ mr: 1 }}
             >
-              Vender
+              Gestionar Productos
             </Button>
+          )}
+
+          {user && user.role === 'user' && (
+            <IconButton
+              color="primary"
+              onClick={() => navigate('/favorites')}
+              sx={{ mr: 1 }}
+              title="Mis Favoritos"
+            >
+              <Badge badgeContent={favorites.length > 0 ? favorites.length : undefined} color="secondary">
+                <Favorite />
+              </Badge>
+            </IconButton>
           )}
 
           <IconButton
@@ -180,15 +210,50 @@ export default function Header({ onCartOpen, onSearchChange }: HeaderProps) {
 
           {user ? (
             <>
-              <IconButton
-                edge="end"
-                onClick={handleProfileMenuOpen}
-                color="primary"
-              >
-                <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
-                  {user.firstName.charAt(0).toUpperCase()}
-                </Avatar>
-              </IconButton>
+              {/* User Info and Logout Button */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ textAlign: 'right', display: { xs: 'none', sm: 'block' } }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    {user.firstName} {user.lastName}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {user.role === 'admin' ? 'Administrador' : 'Usuario'}
+                  </Typography>
+                </Box>
+                
+                <IconButton
+                  edge="end"
+                  onClick={handleProfileMenuOpen}
+                  color="primary"
+                >
+                  <Avatar sx={{ 
+                    width: 32, 
+                    height: 32, 
+                    bgcolor: user.role === 'admin' ? 'secondary.main' : 'primary.main' 
+                  }}>
+                    {user.firstName.charAt(0).toUpperCase()}
+                  </Avatar>
+                </IconButton>
+
+                <Button
+                  color="error"
+                  variant="outlined"
+                  size="small"
+                  startIcon={<Logout />}
+                  onClick={handleLogout}
+                  sx={{ 
+                    borderColor: 'error.main',
+                    '&:hover': {
+                      bgcolor: 'error.main',
+                      color: 'white',
+                    },
+                  }}
+                >
+                  Salir
+                </Button>
+              </Box>
+
+              {/* User Menu */}
               <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
@@ -206,10 +271,21 @@ export default function Header({ onCartOpen, onSearchChange }: HeaderProps) {
                   <Person sx={{ mr: 1 }} />
                   Mi Perfil
                 </MenuItem>
-                <MenuItem onClick={() => { navigate('/manage-products'); handleMenuClose(); }}>
-                  <Store sx={{ mr: 1 }} />
-                  Mis Productos
-                </MenuItem>
+
+                {user.role === 'user' && (
+                  <MenuItem onClick={() => { navigate('/favorites'); handleMenuClose(); }}>
+                    <Favorite sx={{ mr: 1 }} />
+                    Mis Favoritos
+                  </MenuItem>
+                )}
+                
+                {user.role === 'admin' && (
+                  <MenuItem onClick={() => { navigate('/manage-products'); handleMenuClose(); }}>
+                    <Store sx={{ mr: 1 }} />
+                    Gestionar Productos
+                  </MenuItem>
+                )}
+                
                 <Divider />
                 <MenuItem onClick={handleLogout}>
                   <Logout sx={{ mr: 1 }} />

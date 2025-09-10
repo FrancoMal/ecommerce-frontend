@@ -9,17 +9,19 @@ import {
   Box,
   Chip,
   IconButton,
-  Tooltip,
 } from '@mui/material';
 import {
   AddShoppingCart,
   Visibility,
   Inventory,
   LocalOffer,
+  Favorite,
+  FavoriteBorder,
 } from '@mui/icons-material';
 import { Product } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { useFavorites } from '../../context/FavoritesContext';
 import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
@@ -29,6 +31,7 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const { toggleFavorite, isFavorite } = useFavorites();
   const navigate = useNavigate();
 
   const handleAddToCart = (event: React.MouseEvent) => {
@@ -52,11 +55,23 @@ export default function ProductCard({ product }: ProductCardProps) {
     navigate(`/products/${product.id}`);
   };
 
+  const handleToggleFavorite = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    
+    toggleFavorite(product.id);
+  };
+
   const primaryImage = product.images.find(img => img.isPrimary)?.imageUrl || 
                       product.images[0]?.imageUrl || 
                       'https://via.placeholder.com/300x200?text=No+Image';
 
   const isOutOfStock = product.stock === 0;
+  const isProductFavorite = isAuthenticated && isFavorite(product.id);
 
   return (
     <Card
@@ -104,19 +119,48 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         )}
         
-        {!isOutOfStock && product.stock <= 5 && (
-          <Chip
-            label={`Solo ${product.stock} disponibles`}
-            color="warning"
-            size="small"
+        {/* Top Right Corner - Stock and Favorite */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1,
+            alignItems: 'flex-end',
+          }}
+        >
+          {/* Favorite Button */}
+          <IconButton
+            onClick={handleToggleFavorite}
             sx={{
-              position: 'absolute',
-              top: 8,
-              right: 8,
-              fontWeight: 600,
+              bgcolor: 'rgba(255, 255, 255, 0.9)',
+              color: isProductFavorite ? 'error.main' : 'text.secondary',
+              width: 32,
+              height: 32,
+              '&:hover': {
+                bgcolor: 'white',
+                color: 'error.main',
+              },
             }}
-          />
-        )}
+            size="small"
+          >
+            {isProductFavorite ? <Favorite /> : <FavoriteBorder />}
+          </IconButton>
+
+          {!isOutOfStock && product.stock <= 5 && (
+            <Chip
+              label={`Solo ${product.stock}`}
+              color="warning"
+              size="small"
+              sx={{
+                fontWeight: 600,
+                fontSize: '0.7rem',
+              }}
+            />
+          )}
+        </Box>
 
         <Box
           sx={{
@@ -124,16 +168,20 @@ export default function ProductCard({ product }: ProductCardProps) {
             top: 8,
             left: 8,
             display: 'flex',
+            flexDirection: 'column',
             gap: 1,
+            maxWidth: 'calc(100% - 60px)',
           }}
         >
-          <Chip
-            icon={<LocalOffer />}
-            label="Oferta"
-            color="secondary"
-            size="small"
-            sx={{ fontWeight: 600 }}
-          />
+          {product.featured && (
+            <Chip
+              icon={<LocalOffer />}
+              label="Destacado"
+              color="secondary"
+              size="small"
+              sx={{ fontWeight: 600 }}
+            />
+          )}
         </Box>
       </Box>
 
@@ -171,16 +219,64 @@ export default function ProductCard({ product }: ProductCardProps) {
           })}
         </Typography>
 
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{
-            fontSize: '0.875rem',
-            mb: 1,
-          }}
-        >
-          Stock: {product.stock} disponibles
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontSize: '0.875rem' }}
+          >
+            Stock: {product.stock}
+          </Typography>
+          {product.brand && (
+            <Typography
+              variant="caption"
+              sx={{
+                bgcolor: 'grey.100',
+                px: 1,
+                py: 0.25,
+                borderRadius: 0.5,
+                fontSize: '0.7rem',
+                fontWeight: 500,
+              }}
+            >
+              {product.brand}
+            </Typography>
+          )}
+        </Box>
+
+        {/* Product Tags */}
+        {product.tags && product.tags.length > 0 && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
+            {product.tags.slice(0, 3).map((tag) => (
+              <Chip
+                key={tag.id}
+                label={tag.name}
+                size="small"
+                sx={{
+                  bgcolor: tag.color,
+                  color: 'white',
+                  fontSize: '0.7rem',
+                  height: 20,
+                  '& .MuiChip-label': {
+                    px: 1,
+                  },
+                }}
+              />
+            ))}
+            {product.tags.length > 3 && (
+              <Chip
+                label={`+${product.tags.length - 3}`}
+                size="small"
+                sx={{
+                  bgcolor: 'grey.400',
+                  color: 'white',
+                  fontSize: '0.7rem',
+                  height: 20,
+                }}
+              />
+            )}
+          </Box>
+        )}
       </CardContent>
 
       <CardActions sx={{ p: 3, pt: 0, display: 'flex', gap: 1 }}>

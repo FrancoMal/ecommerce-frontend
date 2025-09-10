@@ -10,22 +10,23 @@ declare module '@mui/material/styles' {
   }
 }
 
-export const theme = createTheme({
+export const createHaversackTheme = (mode: 'light' | 'dark') => createTheme({
   palette: {
+    mode,
     primary: {
-      main: '#E53E3E', // Rojo vibrante como en Figma
+      main: '#E53E3E', // Rojo vibrante Haversack
       light: '#F56565',
       dark: '#C53030',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#1A202C', // Negro elegante
-      light: '#2D3748',
-      dark: '#171923',
-      contrastText: '#ffffff',
+      main: mode === 'dark' ? '#ffffff' : '#1A202C', // Blanco en dark mode, negro en light
+      light: mode === 'dark' ? '#f7fafc' : '#2D3748',
+      dark: mode === 'dark' ? '#e2e8f0' : '#171923',
+      contrastText: mode === 'dark' ? '#1A202C' : '#ffffff',
     },
     tertiary: {
-      main: '#10b981', // Verde éxito (mantener)
+      main: '#10b981', // Verde éxito
       light: '#34d399',
       dark: '#059669',
       contrastText: '#ffffff',
@@ -41,12 +42,12 @@ export const theme = createTheme({
       dark: '#d97706',
     },
     background: {
-      default: '#ffffff', // Fondo blanco limpio como en Figma
-      paper: '#ffffff',
+      default: mode === 'dark' ? '#1A202C' : '#ffffff', // Negro en dark, blanco en light
+      paper: mode === 'dark' ? '#2D3748' : '#ffffff',
     },
     text: {
-      primary: '#1A202C', // Negro elegante para texto principal
-      secondary: '#718096', // Gris más suave para texto secundario
+      primary: mode === 'dark' ? '#ffffff' : '#1A202C', // Blanco en dark, negro en light
+      secondary: mode === 'dark' ? '#CBD5E0' : '#718096', // Gris claro en dark, gris medio en light
     },
   },
   typography: {
@@ -143,12 +144,17 @@ export const theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: '#ffffff',
-          color: '#1A202C',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          borderBottom: '1px solid #E2E8F0',
+          backgroundColor: mode === 'dark' ? '#2D3748' : '#ffffff',
+          color: mode === 'dark' ? '#ffffff' : '#1A202C',
+          boxShadow: mode === 'dark' 
+            ? '0 1px 3px rgba(0,0,0,0.3)' 
+            : '0 1px 3px rgba(0,0,0,0.1)',
+          borderBottom: `1px solid ${mode === 'dark' ? '#4A5568' : '#E2E8F0'}`,
         },
       },
     },
   },
 });
+
+// Export default light theme for compatibility
+export const theme = createHaversackTheme('light');

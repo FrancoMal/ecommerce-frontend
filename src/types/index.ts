@@ -5,6 +5,9 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
+  role: 'admin' | 'user';
+  avatar?: string;
+  createdAt: string;
 }
 
 export interface LoginFormData {
@@ -20,6 +23,13 @@ export interface RegisterFormData {
   lastName: string;
 }
 
+// Tag types
+export interface Tag {
+  id: number;
+  name: string;
+  color: string;
+}
+
 // Product types
 export interface Product {
   id: number;
@@ -28,9 +38,13 @@ export interface Product {
   price: number;
   stock: number;
   categoryId: number;
+  category?: Category; // Para populate
+  brand?: string; // Marca del producto (opcional)
   userId: number;
   images: ProductImage[];
+  tags: Tag[];
   isActive: boolean;
+  featured: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -50,7 +64,10 @@ export interface CreateProductData {
   price: number;
   stock: number;
   categoryId: number;
-  images: string[];
+  brand?: string;
+  images: File[] | string[];
+  tags: Tag[];
+  featured?: boolean;
 }
 
 // Category types
@@ -144,11 +161,18 @@ export interface ProductContextType {
 // Filter types
 export interface ProductFilters {
   categoryId?: number;
+  categories?: number[];
   search?: string;
+  tags?: string[];
+  colors?: string[];
+  brands?: string[];
+  priceMin?: number;
+  priceMax?: number;
   sortBy?: 'name' | 'price' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
   page?: number;
   limit?: number;
+  featured?: boolean;
 }
 
 // Form validation types
@@ -164,4 +188,27 @@ export interface Notification {
   type: NotificationType;
   message: string;
   duration?: number;
+}
+
+// Theme types
+export type ThemeMode = 'light' | 'dark';
+
+export interface ThemeContextType {
+  mode: ThemeMode;
+  toggleTheme: () => void;
+}
+
+// Upload types
+export interface UploadedImage {
+  file: File;
+  preview: string;
+  id: string;
+}
+
+// Admin types
+export interface AdminStats {
+  totalUsers: number;
+  totalProducts: number;
+  totalOrders: number;
+  revenue: number;
 }

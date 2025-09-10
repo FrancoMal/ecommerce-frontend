@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -13,19 +13,24 @@ import {
   Divider,
   Button,
   Stack,
+  Switch,
 } from '@mui/material';
 import {
   ExpandMore,
   FilterList,
   Clear,
+  Star,
 } from '@mui/icons-material';
-import { Category } from '../../types';
+import { Category, Tag } from '../../types';
+import { getTags, getBrands } from '../../services/productService';
 
 interface FilterSidebarProps {
   categories: Category[];
   onCategoryFilter: (categoryIds: number[]) => void;
   onPriceFilter: (min: number, max: number) => void;
-  onColorFilter: (colors: string[]) => void;
+  onBrandFilter: (brands: string[]) => void;
+  onTagFilter: (tags: string[]) => void;
+  onFeaturedFilter: (featured: boolean) => void;
   onClearFilters: () => void;
 }
 
@@ -38,21 +43,40 @@ const colors = [
   { name: 'Rosa', value: 'pink', color: '#ED64A6' },
 ];
 
-const brands = [
-  'Apple', 'Samsung', 'Nike', 'Adidas', 'Sony', 'LG'
-];
-
 export default function FilterSidebar({
   categories,
   onCategoryFilter,
   onPriceFilter,
-  onColorFilter,
+  onBrandFilter,
+  onTagFilter,
+  onFeaturedFilter,
   onClearFilters,
 }: FilterSidebarProps) {
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [featuredOnly, setFeaturedOnly] = useState(false);
   const [priceRange, setPriceRange] = useState<number[]>([0, 2000]);
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+  const [availableBrands, setAvailableBrands] = useState<string[]>([]);
+
+  // Load tags and brands
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [tags, brands] = await Promise.all([
+          getTags(),
+          getBrands()
+        ]);
+        setAvailableTags(tags);
+        setAvailableBrands(brands);
+      } catch (error) {
+        console.error('Error loading filter data:', error);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const handleCategoryChange = (categoryId: number) => {
     const newSelection = selectedCategories.includes(categoryId)
@@ -63,21 +87,22 @@ export default function FilterSidebar({
     onCategoryFilter(newSelection);
   };
 
-  const handleColorChange = (colorValue: string) => {
-    const newSelection = selectedColors.includes(colorValue)
-      ? selectedColors.filter(color => color !== colorValue)
-      : [...selectedColors, colorValue];
-    
-    setSelectedColors(newSelection);
-    onColorFilter(newSelection);
-  };
-
   const handleBrandChange = (brand: string) => {
     const newSelection = selectedBrands.includes(brand)
       ? selectedBrands.filter(b => b !== brand)
       : [...selectedBrands, brand];
     
     setSelectedBrands(newSelection);
+    onBrandFilter(newSelection);
+  };
+
+  const handleTagChange = (tagName: string) => {
+    const newSelection = selectedTags.includes(tagName)
+      ? selectedTags.filter(t => t !== tagName)
+      : [...selectedTags, tagName];
+    
+    setSelectedTags(newSelection);
+    onTagFilter(newSelection);
   };
 
   const handlePriceChange = (event: Event, newValue: number | number[]) => {
@@ -86,17 +111,24 @@ export default function FilterSidebar({
     onPriceFilter(min, max);
   };
 
+  const handleFeaturedChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFeaturedOnly(event.target.checked);
+    onFeaturedFilter(event.target.checked);
+  };
+
   const handleClearAll = () => {
     setSelectedCategories([]);
-    setSelectedColors([]);
     setSelectedBrands([]);
+    setSelectedTags([]);
+    setFeaturedOnly(false);
     setPriceRange([0, 2000]);
     onClearFilters();
   };
 
   const hasActiveFilters = selectedCategories.length > 0 || 
-                          selectedColors.length > 0 || 
-                          selectedBrands.length > 0 ||
+                          selectedBrands.length > 0 || 
+                          selectedTags.length > 0 ||
+                          featuredOnly ||
                           priceRange[0] > 0 || 
                           priceRange[1] < 2000;
 
@@ -150,15 +182,33 @@ export default function FilterSidebar({
                 />
               ) : null;
             })}
-            {selectedColors.map(color => (
+            {selectedBrands.map(brand => (
               <Chip
-                key={color}
-                label={colors.find(c => c.value === color)?.name}
+                key={brand}
+                label={brand}
                 size="small"
-                onDelete={() => handleColorChange(color)}
+                onDelete={() => handleBrandChange(brand)}
                 color="primary"
               />
             ))}
+            {selectedTags.map(tagName => (
+              <Chip
+                key={tagName}
+                label={tagName}
+                size="small"
+                onDelete={() => handleTagChange(tagName)}
+                color="primary"
+              />
+            ))}
+            {featuredOnly && (
+              <Chip
+                label="Destacados"
+                size="small"
+                onDelete={() => handleFeaturedChange({ target: { checked: false } } as any)}
+                color="secondary"
+                icon={<Star />}
+              />
+            )}
           </Stack>
           <Divider sx={{ mt: 2 }} />
         </Box>
@@ -193,42 +243,6 @@ export default function FilterSidebar({
 
       <Divider sx={{ my: 2 }} />
 
-      {/* Color Filter */}
-      <Accordion defaultExpanded disableGutters elevation={0}>
-        <AccordionSummary expandIcon={<ExpandMore />}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-            Color
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-            {colors.map((color) => (
-              <Box
-                key={color.value}
-                onClick={() => handleColorChange(color.value)}
-                sx={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: '50%',
-                  backgroundColor: color.color,
-                  cursor: 'pointer',
-                  border: selectedColors.includes(color.value) 
-                    ? '3px solid #E53E3E' 
-                    : '2px solid #E2E8F0',
-                  transition: 'all 0.2s ease',
-                  '&:hover': {
-                    transform: 'scale(1.1)',
-                  },
-                }}
-                title={color.name}
-              />
-            ))}
-          </Box>
-        </AccordionDetails>
-      </Accordion>
-
-      <Divider sx={{ my: 2 }} />
-
       {/* Brand Filter */}
       <Accordion defaultExpanded disableGutters elevation={0}>
         <AccordionSummary expandIcon={<ExpandMore />}>
@@ -238,7 +252,7 @@ export default function FilterSidebar({
         </AccordionSummary>
         <AccordionDetails>
           <FormGroup>
-            {brands.map((brand) => (
+            {availableBrands.map((brand) => (
               <FormControlLabel
                 key={brand}
                 control={
@@ -255,6 +269,64 @@ export default function FilterSidebar({
           </FormGroup>
         </AccordionDetails>
       </Accordion>
+
+      <Divider sx={{ my: 2 }} />
+
+      {/* Tags Filter */}
+      <Accordion defaultExpanded disableGutters elevation={0}>
+        <AccordionSummary expandIcon={<ExpandMore />}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            Tags
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            {availableTags.map((tag) => (
+              <Chip
+                key={tag.id}
+                label={tag.name}
+                onClick={() => handleTagChange(tag.name)}
+                variant={selectedTags.includes(tag.name) ? 'filled' : 'outlined'}
+                sx={{
+                  bgcolor: selectedTags.includes(tag.name) ? tag.color : 'transparent',
+                  color: selectedTags.includes(tag.name) ? 'white' : 'text.primary',
+                  borderColor: tag.color,
+                  cursor: 'pointer',
+                  '&:hover': {
+                    bgcolor: selectedTags.includes(tag.name) 
+                      ? tag.color 
+                      : `${tag.color}20`,
+                  },
+                }}
+                size="small"
+              />
+            ))}
+          </Box>
+        </AccordionDetails>
+      </Accordion>
+
+      <Divider sx={{ my: 2 }} />
+
+      {/* Featured Filter */}
+      <Box sx={{ mb: 2 }}>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={featuredOnly}
+              onChange={handleFeaturedChange}
+              color="primary"
+            />
+          }
+          label={
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Star color="action" />
+              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                Solo productos destacados
+              </Typography>
+            </Box>
+          }
+        />
+      </Box>
 
       <Divider sx={{ my: 2 }} />
 

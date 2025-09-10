@@ -55,7 +55,7 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
-  const { loading } = useAuth();
+  const { loading, register: registerUser } = useAuth();
 
   const {
     register,
@@ -73,12 +73,10 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
       // Remove confirmPassword from the data
       const { confirmPassword, ...registerData } = data;
       
-      // Mock registration for development
-      setSuccess('¡Registro exitoso! Redirigiendo...');
+      // Use the actual auth service
+      await registerUser(registerData);
       
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      setSuccess('¡Registro exitoso! Redirigiendo...');
       
     } catch (err: any) {
       setError(err.message || 'Error al registrar usuario');

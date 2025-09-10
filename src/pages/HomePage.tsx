@@ -26,9 +26,11 @@ export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [filters, setFilters] = useState({
     categories: [] as number[],
-    colors: [] as string[],
+    brands: [] as string[],
+    tags: [] as string[],
     priceMin: 0,
     priceMax: 2000,
+    featured: false,
   });
 
   // Load categories
@@ -73,16 +75,26 @@ export default function HomePage() {
     setFilters(prev => ({ ...prev, priceMin: min, priceMax: max }));
   };
 
-  const handleColorFilter = (colors: string[]) => {
-    setFilters(prev => ({ ...prev, colors }));
+  const handleBrandFilter = (brands: string[]) => {
+    setFilters(prev => ({ ...prev, brands }));
+  };
+
+  const handleTagFilter = (tags: string[]) => {
+    setFilters(prev => ({ ...prev, tags }));
+  };
+
+  const handleFeaturedFilter = (featured: boolean) => {
+    setFilters(prev => ({ ...prev, featured }));
   };
 
   const handleClearFilters = () => {
     setFilters({
       categories: [],
-      colors: [],
+      brands: [],
+      tags: [],
       priceMin: 0,
       priceMax: 2000,
+      featured: false,
     });
     setSearchQuery('');
   };
@@ -154,6 +166,14 @@ export default function HomePage() {
             <ProductGrid 
               categoryId={filters.categories.length > 0 ? filters.categories[0] : null}
               searchQuery={searchQuery}
+              filters={{
+                categories: filters.categories,
+                tags: filters.tags,
+                brands: filters.brands,
+                priceMin: filters.priceMin,
+                priceMax: filters.priceMax,
+                featured: filters.featured,
+              }}
             />
           </Container>
         </Box>
@@ -164,7 +184,9 @@ export default function HomePage() {
             categories={categories}
             onCategoryFilter={handleCategoryFilter}
             onPriceFilter={handlePriceFilter}
-            onColorFilter={handleColorFilter}
+            onBrandFilter={handleBrandFilter}
+            onTagFilter={handleTagFilter}
+            onFeaturedFilter={handleFeaturedFilter}
             onClearFilters={handleClearFilters}
           />
         )}

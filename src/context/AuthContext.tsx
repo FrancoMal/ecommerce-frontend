@@ -21,8 +21,8 @@ type AuthAction =
 const initialState: AuthState = {
   user: null,
   token: localStorage.getItem('token'),
-  isAuthenticated: false,
-  loading: false,
+  isAuthenticated: !!localStorage.getItem('token'),
+  loading: true, // Start with loading true to check auth state
 };
 
 // Auth reducer
@@ -75,18 +75,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem('token');
-      if (token) {
+      const savedUser = localStorage.getItem('user');
+      
+      if (token && savedUser) {
         try {
           dispatch({ type: 'SET_LOADING', payload: true });
-          const user = await authService.getProfile();
+          const user = JSON.parse(savedUser);
           dispatch({ type: 'SET_USER', payload: user });
         } catch (error) {
-          console.error('Failed to get user profile:', error);
+          console.error('Failed to load user from localStorage:', error);
           localStorage.removeItem('token');
+          localStorage.removeItem('user');
           dispatch({ type: 'LOGOUT' });
         } finally {
           dispatch({ type: 'SET_LOADING', payload: false });
         }
+      } else {
+        dispatch({ type: 'SET_LOADING', payload: false });
       }
     };
 
@@ -99,6 +104,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await authService.login(email, password);
       
       localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: {
@@ -118,6 +125,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await authService.register(userData);
       
       localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: {
@@ -133,6 +142,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     dispatch({ type: 'LOGOUT' });
   };
 
