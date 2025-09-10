@@ -240,7 +240,7 @@ const mockProducts: Product[] = [
       {
         id: 9,
         productId: 9,
-        imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+        imageUrl: 'https://http2.mlstatic.com/D_Q_NP_983139-MLU78058287734_082024-O.webp',
         altText: 'Lámpara LED',
         isPrimary: true,
         displayOrder: 0
