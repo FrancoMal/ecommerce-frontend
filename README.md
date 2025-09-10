@@ -1,46 +1,123 @@
-# Getting Started with Create React App
+# 🛍️ Haversack - ECommerce Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Aplicación de e-commerce moderna desarrollada en React con TypeScript y Material-UI, basada en el prototipo Figma y cumpliendo todos los requerimientos del TPO de Aplicaciones Interactivas.
 
-## Available Scripts
+## ✨ Características Implementadas
 
-In the project directory, you can run:
+### 🔐 Gestión de Usuarios
+- ✅ Registro de usuarios (nombre, apellido, email, contraseña)
+- ✅ Login de usuarios con validación
+- ✅ Autenticación persistente con localStorage
+- ✅ Gestión de perfil de usuario
 
-### `npm start`
+### 📦 Catálogo de Productos
+- ✅ Listado de productos ordenados alfabéticamente
+- ✅ Categorías de productos con navegación
+- ✅ Detalle completo de productos con imágenes
+- ✅ Sistema de búsqueda y filtrado
+- ✅ Validación de stock en tiempo real
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 🛒 Carrito de Compras
+- ✅ Agregar productos al carrito
+- ✅ Modificar cantidades y eliminar productos
+- ✅ Calcular total automáticamente
+- ✅ Checkout con validación de stock
+- ✅ Vaciar carrito completo
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 🏪 Gestión de Productos
+- ✅ Alta de productos con múltiples imágenes
+- ✅ Edición y eliminación de productos
+- ✅ Gestión de stock por producto
+- ✅ Categorización de productos
 
-### `npm test`
+## 🛠️ Tecnologías Utilizadas
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **React 18+** con TypeScript
+- **Material-UI v5** para componentes UI
+- **React Router v6** para navegación
+- **React Hook Form** + **Yup** para formularios
+- **Context API** para gestión de estado
+- **Axios** para peticiones HTTP
 
-### `npm run build`
+## 🚀 Instalación y Ejecución
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Prerrequisitos
+- Node.js 16.x o superior
+- npm 8.x o superior
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Pasos para ejecutar
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. **Instalar dependencias**
+```bash
+npm install
+```
 
-### `npm run eject`
+2. **Ejecutar en modo desarrollo**
+```bash
+npm start
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+La aplicación estará disponible en: `http://localhost:3000`
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🎨 Características de Diseño (Basado en Prototipo Figma)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Tema Personalizado
+- **Paleta de colores Haversack**: Rojo vibrante (#E53E3E) como color principal
+- Tipografía moderna y minimalista
+- Componentes Material-UI customizados
+- Diseño limpio con fondo blanco
+- Transiciones suaves y elegantes
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### UX/UI Avanzada
+- **Sidebar de filtros moderno** (categorías, colores, marcas, precio)
+- **Cards de productos rediseñadas** con imágenes prominentes
+- **Búsqueda mejorada** con estilo redondeado
+- **Header minimalista** estilo Figma
+- **Branding "Haversack"** consistente
+- Loading states y feedback visual
+- Diseño responsive para móviles y desktop
 
-## Learn More
+## 📱 Funcionalidades Demo
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Usuario Demo
+- **Email**: `admin@test.com`
+- **Contraseña**: `password`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+*O crea tu propio usuario usando cualquier email válido*
+
+### Productos Mock
+La aplicación incluye datos de prueba con:
+- 6 productos de ejemplo en diferentes categorías
+- Imágenes de Unsplash
+- Stock variable para probar validaciones
+- Precios en pesos argentinos
+
+## 🏗️ Arquitectura del Proyecto
+
+```
+src/
+├── components/           # Componentes reutilizables
+│   ├── auth/            # Componentes de autenticación
+│   ├── cart/            # Componentes del carrito
+│   ├── layout/          # Layout y navegación
+│   └── products/        # Componentes de productos
+├── context/             # Contextos de React
+├── pages/               # Páginas principales
+├── services/            # Servicios de API
+├── types/               # Tipos de TypeScript
+└── theme.ts            # Tema de Material-UI
+```
+
+## 🎯 Requerimientos del TPO Cumplidos
+
+✅ **Sistema completo de e-commerce funcional**  
+✅ **Gestión de usuarios (registro/login)**  
+✅ **Catálogo de productos con categorías**  
+✅ **Carrito de compras completo**  
+✅ **Gestión de productos y stock**  
+✅ **Interfaz responsive y moderna**  
+✅ **Validaciones y manejo de errores**  
+
+---
+
+**🎉 ¡La aplicación está lista para usar y cumple con todos los requerimientos del TPO!**
